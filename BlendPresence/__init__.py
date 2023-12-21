@@ -85,6 +85,22 @@ def evalCustomUrl(str):
             
     return re.match(regex, str) is not None
 
+def getAvatarInfo():
+    poly_count = 0
+    bone_count = 0
+    materials = 0
+
+    for obj in bpy.context.scene.objects:
+        if obj.type == "MESH":
+            poly_count += len(obj.data.polygons)
+            for mat in obj.data.materials:
+                if mat is not None:
+                    materials += 1
+        elif obj.type == "ARMATURE":
+            bone_count += len(obj.data.bones)
+
+    return f"{poly_count:,d} Polys | {bone_count:,d} Bones | {materials} Materials"
+
 def getCurrentScene():
     s = bpy.context.scene.name
     return "Default Scene" if s == "Scene" else f"Scene {s}"
@@ -321,6 +337,7 @@ def updatePresence():
             # Viewport State      
             displayTypes = {
                 "custom" : evalCustomText,
+                "avatar" : getAvatarInfo,
                 "scene" : getCurrentScene,
                 "obj" : getObjectCount,
                 "poly" : getPolyCount,
@@ -522,6 +539,7 @@ class blendPresence(bpy.types.AddonPreferences):
             ("active", "Active Object", "Display the name of the curent active object selected. If none is seleced then this will return nothing"),
             ("frame", "Current Frame", "Display the current frame being viewed in the timeline. The text will also change if you are playing back an animation"),
             ("size", "File Size", "Displays the file size of your current project file. If your project is not saved, nothing will display"),
+            ("avatar", "VRC Avatar", "Display Polygon count, Material Count and Bone Count, which is the most interesting data for VRChat Avatars"),
             ("custom", "Custom", "A string that will display in the 'details' property. Two characters or longer"),
         ),
         default = "custom",
